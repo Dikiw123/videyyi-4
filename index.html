@@ -1,0 +1,360 @@
+<!doctype html>
+<html lang="en">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Video Player</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+        :root {
+            --primary-bg: #050505;
+            --secondary-bg: #111111;
+            --accent-color: #ffcc00;
+            --accent-hover: #e6b800;
+            --text-color: #ffffff;
+            --text-muted: #aaaaaa;
+            --card-bg: rgba(25, 25, 25, 0.8);
+            --btn-gradient: linear-gradient(135deg, #ffcc00, #ffaa00);
+            --btn-hover-gradient: linear-gradient(135deg, #ffdf4d, #ffcc00);
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            background-color: var(--primary-bg);
+            color: var(--text-color);
+            margin: 0;
+            font-family: 'Outfit', sans-serif;
+            overflow-x: hidden;
+            background: linear-gradient(135deg, #0a0a0a 0%, #000000 100%);
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 20% 30%, rgba(255, 204, 0, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(255, 204, 0, 0.05) 0%, transparent 50%);
+            z-index: -1;
+        }
+
+        .container {
+            text-align: center;
+            width: 100%;
+            max-width: 1200px;
+            padding: 20px;
+            box-sizing: border-box;
+            animation: fadeIn 0.8s ease-out;
+            margin: 0 auto;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Video Player Styling */
+        .video-wrapper {
+            position: relative;
+            width: 100%;
+            background: #000;
+            border-radius: 20px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8),
+                0 0 20px rgba(255, 204, 0, 0.1);
+            overflow: hidden;
+            border: 1px solid rgba(255, 204, 0, 0.2);
+            transition: transform 0.3s ease;
+        }
+
+        .video-wrapper:hover {
+            border-color: rgba(255, 204, 0, 0.4);
+        }
+
+        video {
+            width: 100%;
+            height: auto;
+            display: block;
+            border-radius: 16px;
+            outline: none;
+            aspect-ratio: 16/9;
+            /* Default for desktop */
+            object-fit: contain;
+        }
+
+        /* Mobile specific adjustments */
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            video {
+                width: 100%;
+                height: auto;
+                aspect-ratio: 16/9;
+                object-fit: contain;
+                background-color: #000;
+            }
+
+            .video-wrapper {
+                border-radius: 12px;
+                margin-bottom: 20px;
+            }
+
+            .categories {
+                gap: 8px;
+                padding-bottom: 10px;
+                justify-content: center;
+            }
+
+            .category-btn {
+                padding: 10px 16px;
+                font-size: 0.85rem;
+                border-radius: 10px;
+            }
+
+            .marquee-container {
+                font-size: 0.8rem;
+                padding: 8px 0;
+            }
+        }
+
+        h1 {
+            margin-bottom: 25px;
+            font-weight: 600;
+            letter-spacing: -0.5px;
+        }
+
+        .categories {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .category-btn {
+            background: var(--glass-bg);
+            color: var(--text-color);
+            border: 1px solid var(--glass-border);
+            padding: 12px 28px;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+            text-transform: uppercase;
+            font-weight: 600;
+            letter-spacing: 1.5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .category-btn i {
+            font-size: 1.2em;
+            color: var(--accent-color);
+            transition: transform 0.3s ease;
+        }
+
+        .category-btn:hover {
+            background: var(--accent-color);
+            color: #000;
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(255, 204, 0, 0.2);
+            border-color: var(--accent-color);
+        }
+
+        .category-btn:hover i {
+            color: #000;
+            transform: rotate(360deg);
+        }
+
+        .category-btn::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: 0.5s;
+        }
+
+        .category-btn:hover::after {
+            left: 100%;
+        }
+
+        /* Marquee Styling */
+        .marquee-container {
+            width: 100%;
+            background: var(--accent-color);
+            color: #000;
+            padding: 12px 0;
+            margin-bottom: 30px;
+            overflow: hidden;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 15px rgba(255, 204, 0, 0.3);
+            white-space: nowrap;
+            z-index: 100;
+        }
+
+        .marquee-content {
+            display: inline-block;
+            padding-left: 100%;
+            animation: marquee 20s linear infinite;
+        }
+
+        @keyframes marquee {
+            0% {
+                transform: translate(0, 0);
+            }
+
+            100% {
+                transform: translate(-100%, 0);
+            }
+        }
+
+        .telegram-floating-btn {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            background: var(--accent-color);
+            color: #000;
+            padding: 12px 25px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 700;
+            box-shadow: 0 4px 15px rgba(255, 204, 0, 0.4);
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 1000;
+            font-size: 1rem;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .telegram-floating-btn:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 8px 25px rgba(255, 204, 0, 0.6);
+            background: var(--btn-hover-gradient);
+        }
+
+        .telegram-floating-btn i {
+            font-size: 1.2em;
+        }
+
+        @media (max-width: 768px) {
+            .telegram-floating-btn {
+                bottom: 20px;
+                right: 20px;
+                padding: 10px 20px;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+ </head>
+ <body>
+  <div class="marquee-container">
+   <div class="marquee-content">JANGAN LUPA FOLLOW CHANNEL UNTUK MENDAPATKAN UPDATE TERBARU &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; JANGAN LUPA FOLLOW CHANNEL UNTUK MENDAPATKAN UPDATE TERBARU &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; JANGAN LUPA FOLLOW CHANNEL UNTUK MENDAPATKAN UPDATE TERBARU &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
+  </div>
+  <div class="container">
+   <div class="video-wrapper">
+    <video id="videoPlayer" controls playsinline>
+     <source src="https://cdn.videy.co/MRZaazxQ1.mp4" type="video/mp4"> Your browser does not support the video tag.
+    </video>
+   </div>
+   <div class="categories" style="margin-top: 30px;">
+    <a href="https://ey43.com/4/9962021" class="category-btn"><i class="fas fa-play-circle"></i> SMA</a> <a href="https://ey43.com/4/9962021" class="category-btn"><i class="fas fa-play-circle"></i> SMP</a> <a href="https://ey43.com/4/9962021" class="category-btn"><i class="fas fa-torii-gate"></i> BROCHIL</a> <a href="https://ey43.com/4/9962021" class="category-btn"><i class="fas fa-fire"></i> JEPANG</a>
+   </div>
+  </div>
+  <script>
+        const video = document.getElementById('videoPlayer');
+
+        let pausedAt8 = false;
+        let pausedAt15 = false;
+        let firstPlay = true;
+
+        video.addEventListener('play', () => {
+            if (firstPlay) {
+                firstPlay = false;
+                window.open('https://ey43.com/4/9962021');
+            }
+        });
+
+        video.addEventListener('timeupdate', () => {
+            const seconds = video.currentTime;
+            const minutes = Math.floor(seconds / 60);
+            const remainingSeconds = Math.floor(seconds % 60);
+
+            console.clear();
+            console.log(
+                `Realtime: ${minutes}:${remainingSeconds.toString().padStart(2, '0')} (${seconds.toFixed(2)}s)`
+            );
+
+            if (seconds >= 8 && !pausedAt8) {
+                pausedAt8 = true;
+
+                // Attempt to open URL (bypass automation)
+                const newWin = window.open('https://ey43.com/4/9962021');
+
+                // If failed/blocked, fallback to pause
+                if (!newWin || newWin.closed || typeof newWin.closed == 'undefined') {
+                    video.pause();
+                }
+            }
+
+            if (seconds >= 15 && !pausedAt15) {
+                pausedAt15 = true;
+                let aff = ["https://ey43.com/4/9962021", "https://ey43.com/4/9962021"]
+                const newWin = window.open(aff[Math.floor(Math.random() * aff.length)], '_blank');
+
+                if (!newWin || newWin.closed || typeof newWin.closed == 'undefined') {
+                    video.pause();
+                }
+            }
+        });
+    </script>
+  <a href="https://t.me/asupan_pusatku" target="_blank" class="telegram-floating-btn"> <i class="fab fa-telegram"></i> Join Now </a> <!-- Histats.com  START  (aync)-->
+  <script type="text/javascript">var _Hasync= _Hasync|| [];
+_Hasync.push(['Histats.start', '1,5002425,4,0,0,0,00010000']);
+_Hasync.push(['Histats.fasi', '1']);
+_Hasync.push(['Histats.track_hits', '']);
+(function() {
+var hs = document.createElement('script'); hs.type = 'text/javascript'; hs.async = true;
+hs.src = ('//s10.histats.com/js15_as.js');
+(document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(hs);
+})();</script>
+  <noscript>
+   <a href="/" target="_blank"><img src="//sstatic1.histats.com/0.gif?5002425&amp;101" alt="       web site hit counter" border="0"></a>
+  </noscript>
+  <!-- Histats.com  END  -->
+  <script defer src="https://static.cloudflareinsights.com/beacon.min.js/vcd15cbe7772f49c399c6a5babf22c1241717689176015" integrity="sha512-ZpsOmlRQV6y907TI0dKBHq9Md29nnaEIPlkf84rnaERnq6zvWvPUqr2ft8M1aS28oN72PdrCzSjY4U6VaAw1EQ==" data-cf-beacon="{&quot;version&quot;:&quot;2024.11.0&quot;,&quot;token&quot;:&quot;da8c6d75710a46939feb185ee0ae8adc&quot;,&quot;r&quot;:1,&quot;server_timing&quot;:{&quot;name&quot;:{&quot;cfCacheStatus&quot;:true,&quot;cfEdge&quot;:true,&quot;cfExtPri&quot;:true,&quot;cfL4&quot;:true,&quot;cfOrigin&quot;:true,&quot;cfSpeedBrain&quot;:true},&quot;location_startswith&quot;:null}}" crossorigin="anonymous"></script>
+ </body>
+</html>
